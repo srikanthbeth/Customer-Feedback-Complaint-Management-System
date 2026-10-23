@@ -1,1 +1,197 @@
-Generic single-database configuration.
+Customer Feedback & Complaint Management System
+Author: Srikanth Bethamcharla
+Project Type: REST API / Backend Application
+Framework: FastAPI
+Language: Python 3.11+
+Database: PostgreSQL
+Test Framework: Pytest
+Project Overview
+The Customer Feedback & Complaint Management System is a backend application for collecting customer feedback, managing complaints, tracking complaint status and assignments, and supporting customer-service workflows.
+
+The API provides endpoints for authentication, users, customers, feedback, categories, complaints, assignments, resolution workflows, SLA tracking, analytics, reports, and audit logs.
+Technology Stack
+- Python 3.11+
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- PostgreSQL
+- Alembic for database migrations
+- Pytest and FastAPI TestClient
+- Uvicorn for running the API
+- python-dotenv / project settings for environment configuration
+Main Features
+- User registration and authentication
+- Role-based access restrictions
+- Customer management
+- Feedback submission, listing, and editing
+- Feedback categories
+- Complaint creation and management
+- Complaint status updates and history
+- Agent assignment workflows
+- Complaint resolution, closure, and reopening
+- SLA tracking
+- Analytics and reports
+- Audit log records and filtered audit-log retrieval
+- Request validation using Pydantic
+- Centralized exception handling
+- Consistent error response structure
+- Duplicate prevention and conflict responses
+- Database rollback handling for failed operations
+- Automated integration tests
+API Modules
+The API uses the version prefix configured by API_V1_PREFIX. In the examples below, the prefix is assumed to be /api/v1.
+Module	Purpose
+Authentication	Registration, login, and authentication-related operations
+Users	User management and role-related operations
+Customers	Customer records and customer-related operations
+Feedback	Submit, view, and edit feedback
+Categories	Feedback/complaint category management
+Complaints	Create and manage complaints
+Agent Assignments	Assign complaints to support agents
+Resolution Workflow	Resolve, close, and reopen complaints
+SLA	Track complaint service-level agreements
+Analytics	Customer feedback and complaint analytics
+Reports	Generate and retrieve reports
+Audit Logs	View audit records with supported filters and pagination
+
+
+For the exact endpoints and request schemas, run the application and use the interactive API documentation.
+Project Structure
+The project uses a modular structure similar to the following:
+customer_feedback_complaint/
+├── alembic/
+│   └── versions/
+├── models/
+├── repositories/
+├── routes/
+├── schemas/
+├── services/
+├── tests/
+├── config.py
+├── database.py
+├── exceptions.py
+├── main.py
+├── alembic.ini
+├── .env
+├── .gitignore
+└── README.md
+The exact files may vary as the project develops.
+- models/ — SQLAlchemy database models
+- schemas/ — Pydantic request and response schemas
+- repositories/ — database access operations
+- services/ — business logic and workflow rules
+- routes/ — FastAPI endpoints
+- tests/ — automated tests
+- alembic/versions/ — database migration scripts
+- database.py — SQLAlchemy engine, session configuration, and database dependency
+- exceptions.py — centralized API exception handlers
+- main.py — FastAPI application and router registration
+Setup
+1. Open the project directory
+In PowerShell:
+cd C:\Users\customer_feedback_complaint
+2. Create and activate a virtual environment
+If the project virtual environment already exists, activate it:
+.\.venv\Scripts\Activate.ps1
+If you need to create it:
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+3. Install dependencies
+If a requirements.txt file exists:
+python -m pip install -r requirements.txt
+Otherwise, install the dependencies specified by the project. Ensure FastAPI, Uvicorn, SQLAlchemy, Pydantic, the PostgreSQL driver, Alembic, Pytest, HTTPX, and python-dotenv are installed as applicable.
+4. Configure environment variables
+Create or update .env using your local PostgreSQL credentials. Example variable names:
+PROJECT_NAME=Customer Feedback & Complaint Management API
+DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5433/customer_feedback_complaint
+TEST_DATABASE_URL=postgresql+psycopg://postgres:YOUR_PASSWORD@localhost:5433/customer_feedback_complaint_test
+ENVIRONMENT=development
+Replace YOUR_PASSWORD with your local database password and use the exact variable names expected by config.py.
+
+Important: Keep .env out of version control. Do not commit database passwords, JWT secrets, or other credentials.
+5. Prepare the database
+Ensure PostgreSQL is running and that the development and test databases exist.
+
+Apply migrations if your project is configured to manage the schema with Alembic:
+python -m alembic upgrade head
+Use your project's migration workflow and confirm that DATABASE_URL points to the intended development database before applying migrations.
+6. Run the application
+python -m uvicorn main:app --reload
+By default, Uvicorn serves the API at:
+- API base URL: http://127.0.0.1:8000
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
+- Health check: http://127.0.0.1:8000/
+The configured API prefix and project settings determine the final endpoint paths.
+Running Tests
+Run the complete test suite from the project root:
+python -m pytest .\tests -q
+Run tests with detailed output:
+python -m pytest .\tests -v
+Run a specific test file:
+python -m pytest .\tests\test_auth.py -v
+Latest confirmed test result
+The latest full test run provided for this project reported:
+259 passed, 1 warning in 75.21s
+- Passed: 259
+- Failed: 0
+- Warnings: 1 Starlette deprecation warning involving httpx and starlette.testclient
+This result reflects the test run reported on October 23, 2026. Run the suite again after making changes to verify the current state.
+Validation and Error Handling
+The application includes Level 14 validation and error-handling work:
+- Pydantic validates request payloads and field constraints.
+- Centralized exception handlers format validation, HTTP, database-integrity, and unexpected errors.
+- Duplicate conflicts can return HTTP 409 Conflict.
+- Request validation errors can return HTTP 422 Unprocessable Entity.
+- Unexpected server errors return HTTP 500 Internal Server Error without exposing internal exception details.
+- Database sessions roll back when exceptions escape the request's database dependency.
+- Role-based dependencies restrict access to protected endpoints.
+- Error responses use a structured format, for example:
+{
+  "success": false,
+  "error": {
+    "code": 422,
+    "message": "Request validation failed",
+    "details": [
+      {
+        "field": "example_field",
+        "message": "Field validation message",
+        "type": "value_error"
+      }
+    ]
+  }
+}
+The exact error details depend on the exception and request.
+Role-Based Access
+Protected endpoints use role-based authorization. Roles used in the project include:
+- CUSTOMER
+- ADMIN
+- SUPPORT_MANAGER
+- SUPPORT_AGENT
+Access depends on the endpoint's configured role requirements. A role name alone does not imply access to every module.
+Database Migrations
+Alembic manages database schema revisions.
+
+Check migration history:
+python -m alembic history
+Check the database's current revision:
+python -m alembic current
+Apply pending migrations:
+python -m alembic upgrade head
+Do not stamp the database to head or delete tables to resolve migration problems without first inspecting the actual schema and migration history.
+Security and Configuration Notes
+- Store credentials and secrets in environment variables.
+- Never commit .env or production secrets.
+- Use a separate test database for automated tests.
+- Do not point destructive test cleanup at the development or production database.
+- Keep authorization checks in place for protected endpoints.
+- Use HTTPS and production-appropriate secret management when deploying.
+- Review CORS, rate limiting, token expiry, and production logging before public deployment.
+Current Test Status
+Level 14 — Validation & Error Handling: test suite green
+
+The latest reported full run completed with 259 passed and 0 failed. The remaining Starlette deprecation warning is separate from test failures.
+Author
+Srikanth Bethamcharla
+
+Customer Feedback & Complaint Management System — FastAPI backend project.
